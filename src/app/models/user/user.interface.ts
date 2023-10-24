@@ -14,3 +14,11 @@ export interface IUser {
   courses: Array<{ courseId: string }>;
   comparePassword: (password: string) => Promise<boolean>;
 }
+
+// * registration user
+export interface IRegistrationBody {
+  name: string;
+  email: string;
+  password: string;
+  avater?: string;
+}

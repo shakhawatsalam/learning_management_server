@@ -3,7 +3,8 @@ import cors from 'cors';
 const app: Application = express();
 import cookieParser from 'cookie-parser';
 import config from './config';
-import { ErrorMiddleware } from './middleware/error';
+import { ErrorMiddleware } from './app/middleware/error';
+import routes from './app/routes';
 
 app.use(
   cors({
@@ -17,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // *
 app.use(cookieParser());
-
+app.use('/api/v1', routes);
 // * Testing
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello World!');
