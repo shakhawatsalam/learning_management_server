@@ -3,6 +3,7 @@ import cors from 'cors';
 const app: Application = express();
 import cookieParser from 'cookie-parser';
 import config from './config';
+import { ErrorMiddleware } from './middleware/error';
 
 app.use(
   cors({
@@ -29,5 +30,7 @@ app.all('*', (req: Request, res: Response, next: NextFunction) => {
   err.statusCode = 404;
   next(err);
 });
+
+app.use(ErrorMiddleware);
 
 export default app;
