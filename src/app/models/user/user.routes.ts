@@ -17,5 +17,15 @@ router.get('/refreshtoken', userController.updateAccessToken);
 router.get('/me', isAuthenticated, userController.getSingleUser);
 router.post('/social-auth', userController.socialAuth);
 router.put('/update-user-info', isAuthenticated, userController.updateUserInfo);
+router.put(
+  '/update-user-password',
+  isAuthenticated,
+  userController.updatePassword,
+);
+router.put(
+  '/update-user-avatar',
+  isAuthenticated,
+  userController.updateProfilePicture,
+);
 
 export const UserRoutes = router;

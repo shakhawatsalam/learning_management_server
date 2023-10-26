@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
-
+// * user interface
 export interface IUser {
   _id?: string;
   isModified(arg0: string): unknown;
   name: string;
   email: string;
   password: string;
-  avater: {
+  avatar: {
     public_id: string;
     url: string;
   };
@@ -55,4 +55,9 @@ export interface IUpdateUserInfo {
 export interface IUpdateUserPassword {
   oldPassword: string;
   newPassword: string;
+}
+
+// * update profie picture
+export interface IUpdateProfilePicture {
+  avatar: string;
 }

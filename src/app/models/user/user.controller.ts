@@ -10,7 +10,9 @@ import {
   ILoginRequest,
   IRegistrationBody,
   ISocialAuthBody,
+  IUpdateProfilePicture,
   IUpdateUserInfo,
+  IUpdateUserPassword,
   IUser,
 } from './user.interface';
 import { jwtHeapers } from '../../../helpers/activationTokenHelpers';
@@ -26,6 +28,7 @@ import {
 } from '../../../utils/jwt';
 import { redis } from '../../../redis';
 import { userService } from './user.service';
+import cloudinary from 'cloudinary';
 
 const registrationUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -320,6 +323,105 @@ const updateUserInfo = CatchAsyncError(
   },
 );
 
+// * update password
+const updatePassword = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { oldPassword, newPassword } = req.body as IUpdateUserPassword;
+
+      if (!oldPassword || !newPassword) {
+        return next(
+          new globalErrorHandler(
+            'please enter old and new Password',
+            httpStatus.BAD_REQUEST,
+          ),
+        );
+      }
+      const user = await userModel.findById(req.user?._id).select('+password');
+
+      if (user?.password === undefined) {
+        return next(
+          new globalErrorHandler('Invalid password', httpStatus.BAD_REQUEST),
+        );
+      }
+      const isPasswordMatch = await user?.comparePassword(oldPassword);
+      if (!isPasswordMatch) {
+        return next(
+          new globalErrorHandler(
+            'Invalid old Password',
+            httpStatus.BAD_REQUEST,
+          ),
+        );
+      }
+
+      user.password = newPassword;
+
+      await user.save();
+
+      await redis.set(req.user?._id, JSON.stringify(user));
+
+      res.status(200).json({
+        success: true,
+        user,
+      });
+    } catch (error: any) {
+      return next(
+        new globalErrorHandler(error.message, httpStatus.BAD_REQUEST),
+      );
+    }
+  },
+);
+
+// * update profile picture
+
+const updateProfilePicture = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { avatar } = req.body as IUpdateProfilePicture;
+
+      const userId = req?.user?._id;
+
+      const user = await userModel.findById(userId);
+
+      if (avatar && user) {
+        if (user?.avatar?.public_id) {
+          // * first delete the old image
+          await cloudinary.v2.uploader.destroy(user?.avatar?.public_id);
+          const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+            folder: 'avatars',
+            width: 150,
+          });
+          user.avatar = {
+            public_id: myCloud.public_id,
+            url: myCloud.secure_url,
+          };
+        } else {
+          const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+            folder: 'avatars',
+            width: 150,
+          });
+          user.avatar = {
+            public_id: myCloud.public_id,
+            url: myCloud.secure_url,
+          };
+        }
+      }
+
+      await user?.save();
+      await redis.set(userId, JSON.stringify(user));
+
+      res.status(200).json({
+        success: true,
+        user,
+      });
+    } catch (error: any) {
+      return next(
+        new globalErrorHandler(error.message, httpStatus.BAD_REQUEST),
+      );
+    }
+  },
+);
+
 export const userController = {
   registrationUser,
   activateUser,
@@ -329,4 +431,6 @@ export const userController = {
   getSingleUser,
   socialAuth,
   updateUserInfo,
+  updatePassword,
+  updateProfilePicture,
 };
