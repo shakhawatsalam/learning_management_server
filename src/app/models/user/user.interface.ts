@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 
 export interface IUser {
+  _id?: string;
   isModified(arg0: string): unknown;
   name: string;
   email: string;
@@ -31,4 +32,8 @@ export interface IActivationRequest {
   activation_code: string;
 }
 
-// *
+// *Login User
+export interface ILoginRequest {
+  email: string;
+  password: string;
+}
