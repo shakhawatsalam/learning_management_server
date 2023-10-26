@@ -11,9 +11,27 @@ type ITokenOptions = {
   secure?: boolean;
 };
 
+// * parse environment variables to intergrates with fallback values
+const accessTokenExpire = parseInt(config.access_token_expire || '300', 10);
+const refreshTokenExpire = parseInt(config.refresh_token_expire || '300', 10);
+
+// * 🍪🍪 Options for Cookies 🍪🍪
+export const accessTokenOptions: ITokenOptions = {
+  expires: new Date(Date.now() + accessTokenExpire * 60 * 60 * 1000),
+  maxAge: accessTokenExpire * 60 * 60 * 1000,
+  httpOnly: true,
+  sameSite: 'lax',
+};
+export const refreshTokenOptions: ITokenOptions = {
+  expires: new Date(Date.now() + refreshTokenExpire * 24 * 60 * 60 * 1000),
+  maxAge: refreshTokenExpire * 24 * 60 * 60 * 1000,
+  httpOnly: true,
+  sameSite: 'lax',
+};
+
 export const sendToke = (user: IUser, statusCode: number, res: Response) => {
   const accessToken = user.SignAccessToken();
-  const refreshToke = user.SignRefreshToken();
+  const refreshToken = user.SignRefreshToken();
 
   // * upload session to Redis
   redis.set(user._id!, JSON.stringify(user));
@@ -24,14 +42,14 @@ export const sendToke = (user: IUser, statusCode: number, res: Response) => {
 
   // * 🍪🍪 Options for Cookies 🍪🍪
   const accessTokenOptions: ITokenOptions = {
-    expires: new Date(Date.now() + accessTokenExpire * 1000),
-    maxAge: accessTokenExpire * 1000,
+    expires: new Date(Date.now() + accessTokenExpire * 60 * 60 * 1000),
+    maxAge: accessTokenExpire * 60 * 60 * 1000,
     httpOnly: true,
     sameSite: 'lax',
   };
   const refreshTokenOptions: ITokenOptions = {
-    expires: new Date(Date.now() + refreshTokenExpire * 1000),
-    maxAge: refreshTokenExpire * 1000,
+    expires: new Date(Date.now() + refreshTokenExpire * 24 * 60 * 60 * 1000),
+    maxAge: refreshTokenExpire * 24 * 60 * 60 * 1000,
     httpOnly: true,
     sameSite: 'lax',
   };
@@ -42,7 +60,7 @@ export const sendToke = (user: IUser, statusCode: number, res: Response) => {
   }
 
   res.cookie('access_token', accessToken, accessTokenOptions);
-  res.cookie('refresh_token', refreshToke, refreshTokenOptions);
+  res.cookie('refresh_token', refreshToken, refreshTokenOptions);
   res.status(statusCode).json({
     success: true,
     user,

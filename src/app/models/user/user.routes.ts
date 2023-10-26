@@ -13,5 +13,8 @@ router.get(
   authorizeRole('admin'),
   userController.logoutUser,
 );
+router.get('/refreshtoken', userController.updateAccessToken);
+router.get('/me', isAuthenticated, userController.getSingleUser);
+router.post('/social-auth', userController.socialAuth);
 
 export const UserRoutes = router;

@@ -37,3 +37,10 @@ export interface ILoginRequest {
   email: string;
   password: string;
 }
+
+// * Social Auth Body
+export interface ISocialAuthBody {
+  email: string;
+  name: string;
+  avater: string;
+}
