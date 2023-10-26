@@ -13,6 +13,8 @@ export interface IUser {
   isVerified: boolean;
   courses: Array<{ courseId: string }>;
   comparePassword: (password: string) => Promise<boolean>;
+  SignAccessToken: () => string;
+  SignRefreshToken: () => string;
 }
 
 // * registration user
@@ -22,3 +24,11 @@ export interface IRegistrationBody {
   password: string;
   avater?: string;
 }
+
+// * activate user
+export interface IActivationRequest {
+  activation_token: string;
+  activation_code: string;
+}
+
+// *

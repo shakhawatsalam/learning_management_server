@@ -9,6 +9,8 @@ export default {
   origin: process.env.ORIGIN,
   redisurl: process.env.REDIS_URL,
   jwt_secret: process.env.ACCESS_TOKEN_PRIVATE_KEY,
+  access_token: process.env.ACCESS_TOKEN,
+  refresh_token: process.env.REFRESH_TOKEN,
   cloudinary: {
     cloudname: process.env.CLOUD_NAME,
     cloudapikey: process.env.CLOUD_API_KEY,
