@@ -10,6 +10,7 @@ import {
   ILoginRequest,
   IRegistrationBody,
   ISocialAuthBody,
+  IUpdateUserInfo,
   IUser,
 } from './user.interface';
 import { jwtHeapers } from '../../../helpers/activationTokenHelpers';
@@ -223,6 +224,7 @@ const updateAccessToken = CatchAsyncError(
         },
       );
 
+      req.user = user;
       res.cookie('access_token', accessToken, accessTokenOptions);
       res.cookie('refresh_token', refreshToken, refreshTokenOptions);
 
@@ -277,6 +279,47 @@ const socialAuth = CatchAsyncError(
   },
 );
 
+// * update user info
+const updateUserInfo = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { name, email } = req.body as IUpdateUserInfo;
+      const userId = req.user?._id;
+      const user = await userModel.findById(userId);
+
+      if (email && user) {
+        const isEmailExist = await userModel.findOne({ email });
+        if (isEmailExist) {
+          return next(
+            new globalErrorHandler(
+              'Email already Exist',
+              httpStatus.BAD_REQUEST,
+            ),
+          );
+        }
+        user.email = email;
+      }
+
+      if (name && user) {
+        user.name = name;
+      }
+
+      await user?.save();
+
+      await redis.set(userId, JSON.stringify(user));
+
+      res.status(200).json({
+        success: true,
+        user,
+      });
+    } catch (error: any) {
+      return next(
+        new globalErrorHandler(error.message, httpStatus.BAD_REQUEST),
+      );
+    }
+  },
+);
+
 export const userController = {
   registrationUser,
   activateUser,
@@ -285,4 +328,5 @@ export const userController = {
   updateAccessToken,
   getSingleUser,
   socialAuth,
+  updateUserInfo,
 };

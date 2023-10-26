@@ -16,5 +16,6 @@ router.get(
 router.get('/refreshtoken', userController.updateAccessToken);
 router.get('/me', isAuthenticated, userController.getSingleUser);
 router.post('/social-auth', userController.socialAuth);
+router.put('/update-user-info', isAuthenticated, userController.updateUserInfo);
 
 export const UserRoutes = router;

@@ -44,3 +44,15 @@ export interface ISocialAuthBody {
   name: string;
   avater: string;
 }
+
+// * update user info
+export interface IUpdateUserInfo {
+  name?: string;
+  email?: string;
+}
+
+// * update user password
+export interface IUpdateUserPassword {
+  oldPassword: string;
+  newPassword: string;
+}
