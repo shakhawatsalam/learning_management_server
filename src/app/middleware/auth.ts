@@ -48,6 +48,8 @@ export const authorizeRole = (...roles: string[]) => {
           httpStatus.FORBIDDEN,
         ),
       );
+    } else {
+      next();
     }
   };
 };

@@ -34,7 +34,6 @@ const commentSchema: Schema<IComment> = new mongoose.Schema({
 const courseDataSchema: Schema<ICourseData> = new mongoose.Schema({
   title: String,
   videoUrl: String,
-  videoThumbnail: Object,
   videoSection: String,
   description: String,
   videoLength: Number,
@@ -47,12 +46,10 @@ const courseDataSchema: Schema<ICourseData> = new mongoose.Schema({
 // * Thumbnail Schema
 const thumbnailSchema: Schema<IThumbnail> = new mongoose.Schema({
   public_id: {
-    required: true,
     type: String,
   },
   url: {
     type: String,
-    required: true,
   },
 });
 
@@ -89,14 +86,12 @@ const courseSchema: Schema<ICourse> = new mongoose.Schema({
 
   benefits: [
     {
-      type: String,
-      required: true,
+      title: String,
     },
   ],
   prerequisites: [
     {
-      type: String,
-      required: true,
+      title: String,
     },
   ],
   reviews: [reviewSchema],
