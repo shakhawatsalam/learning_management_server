@@ -17,6 +17,7 @@ import ejs from 'ejs';
 import path from 'path';
 import mongoose from 'mongoose';
 import sendMail from '../../../utils/sendMail';
+import NotificationModal from '../notification/notification.modal';
 
 // * Upload Course
 const uploadCourse = CatchAsyncError(
@@ -224,6 +225,12 @@ const addQuestion = CatchAsyncError(
       // * add this question to the course content
       courseContent.question.push(newQuestion);
 
+      await NotificationModal.create({
+        user: req.user?._id,
+        title: 'New Question Received',
+        message: `You have a new Question in ${courseContent?.title}`,
+      });
+
       // * save the updated course
       await course?.save();
 
@@ -283,12 +290,18 @@ const addAnswer = CatchAsyncError(
 
       if (req.user?._id === question?.user?._id) {
         // create a notification
+        await NotificationModal.create({
+          user: req.user?._id,
+          title: 'New Question Reply Received',
+          message: `You have a new Question in ${courseContent?.title}`,
+        });
       } else {
         const data = {
           name: question.user.name,
           title: courseContent.title,
         };
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const html = await ejs.renderFile(
           path.join(__dirname, '../../../mails/question-replay.ejs'),
           data,
@@ -297,8 +310,8 @@ const addAnswer = CatchAsyncError(
         try {
           await sendMail({
             email: question.user.email,
-            subject: 'Question Repaly',
-            template: html,
+            subject: 'Question Reply',
+            template: 'question-replay.ejs',
             data,
           });
         } catch (error: any) {
