@@ -7,6 +7,16 @@ import cloudinary from 'cloudinary';
 import { courseService } from './course.service';
 import CourseModel from './course.model';
 import { redis } from '../../../redis';
+import {
+  IAddAnswerData,
+  IAddQuestionData,
+  IAddReviewData,
+  IAddReviewRaplayData,
+} from './course.interface';
+import ejs from 'ejs';
+import path from 'path';
+import mongoose from 'mongoose';
+import sendMail from '../../../utils/sendMail';
 
 // * Upload Course
 const uploadCourse = CatchAsyncError(
@@ -180,10 +190,253 @@ const getCourseByUser = CatchAsyncError(
     }
   },
 );
+
+// * add question in course
+const addQuestion = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { question, courseId, contentId } = req.body as IAddQuestionData;
+      const course = await CourseModel.findById(courseId);
+
+      if (!mongoose.Types.ObjectId.isValid(courseId)) {
+        return next(
+          new globalErrorHandler('Invalid content id', httpStatus.NOT_FOUND),
+        );
+      }
+
+      const courseContent = course?.courseData?.find((item: any) =>
+        item._id.equals(contentId),
+      );
+
+      if (!courseContent) {
+        return next(
+          new globalErrorHandler('Invalid content id', httpStatus.NOT_FOUND),
+        );
+      }
+
+      // * creating question object
+      const newQuestion = {
+        user: req.user,
+        question,
+        questionReplies: [],
+      };
+
+      // * add this question to the course content
+      courseContent.question.push(newQuestion);
+
+      // * save the updated course
+      await course?.save();
+
+      res.status(200).json({
+        success: true,
+        course,
+      });
+    } catch (error: any) {
+      return next(
+        new globalErrorHandler(error.message, httpStatus.INTERNAL_SERVER_ERROR),
+      );
+    }
+  },
+);
+
+// * add answer to the question
+const addAnswer = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { answer, contentId, courseId, questionId }: IAddAnswerData =
+        req.body;
+      const course = await CourseModel.findById(courseId);
+      if (!mongoose.Types.ObjectId.isValid(courseId)) {
+        return next(
+          new globalErrorHandler('Invalid content id', httpStatus.NOT_FOUND),
+        );
+      }
+      const courseContent = course?.courseData?.find((item: any) =>
+        item._id.equals(contentId),
+      );
+
+      if (!courseContent) {
+        return next(
+          new globalErrorHandler('Invalid content id', httpStatus.NOT_FOUND),
+        );
+      }
+
+      const question = courseContent?.question?.find((item: any) =>
+        item._id.equals(questionId),
+      );
+      if (!question) {
+        return next(
+          new globalErrorHandler('Invalid content id', httpStatus.NOT_FOUND),
+        );
+      }
+
+      // * create a new answer object
+      const newAnswer: any = {
+        user: req.user,
+        answer,
+      };
+
+      // * add this answer to our course content
+      question.questionReplies.push(newAnswer);
+
+      await course?.save();
+
+      if (req.user?._id === question?.user?._id) {
+        // create a notification
+      } else {
+        const data = {
+          name: question.user.name,
+          title: courseContent.title,
+        };
+
+        const html = await ejs.renderFile(
+          path.join(__dirname, '../../../mails/question-replay.ejs'),
+          data,
+        );
+
+        try {
+          await sendMail({
+            email: question.user.email,
+            subject: 'Question Repaly',
+            template: html,
+            data,
+          });
+        } catch (error: any) {
+          return next(
+            new globalErrorHandler(
+              error.message,
+              httpStatus.INTERNAL_SERVER_ERROR,
+            ),
+          );
+        }
+      }
+      res.status(200).json({
+        success: true,
+        course,
+      });
+    } catch (error: any) {
+      return next(
+        new globalErrorHandler(error.message, httpStatus.INTERNAL_SERVER_ERROR),
+      );
+    }
+  },
+);
+
+// * add review in course
+const addReview = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userCourseList = req.user?.courses;
+      const courseId = req.params.id;
+      console.log(userCourseList);
+      // * cheching is courseId already exist in userCourseList based on _id
+      const courseExists = userCourseList?.some(
+        (course: any) => course._id.toString() === courseId,
+      );
+
+      if (!courseExists) {
+        return next(
+          new globalErrorHandler(
+            'Your are not eligible to access this course',
+            httpStatus.NOT_FOUND,
+          ),
+        );
+      }
+      const course = await CourseModel.findById(courseId);
+      const { rating, review }: IAddReviewData = req.body;
+      const reviewData: any = {
+        user: req.user,
+        comment: review,
+        rating,
+      };
+
+      course?.reviews.push(reviewData);
+      let avg = 0;
+      course?.reviews.forEach((rev: any) => {
+        avg += rev.rating;
+      });
+
+      if (course) {
+        course.ratings = avg / course.reviews.length;
+      }
+
+      await course?.save();
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const notification = {
+        title: 'New Review Received',
+        message: `${req.user?.name} has given a review In ${course?.name}`,
+      };
+
+      // create notification
+
+      res.status(200).json({
+        success: true,
+        course,
+      });
+    } catch (error: any) {
+      return next(
+        new globalErrorHandler(error.message, httpStatus.INTERNAL_SERVER_ERROR),
+      );
+    }
+  },
+);
+
+// * add repay in review
+const addRepayToReview = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { comment, courseId, reviewId } = req.body as IAddReviewRaplayData;
+      const course = await CourseModel.findById(courseId);
+
+      if (!course) {
+        return next(
+          new globalErrorHandler('Course Not Found', httpStatus.NOT_FOUND),
+        );
+      }
+      // * Find the specific review
+
+      const review = course?.reviews?.find(
+        (rev: any) => rev._id.toString() === reviewId,
+      );
+      if (!review) {
+        return next(
+          new globalErrorHandler('Review Not Found', httpStatus.NOT_FOUND),
+        );
+      }
+
+      // * Replay Data
+      const replyData: any = {
+        user: req.user,
+        comment,
+      };
+      if (!review.commentReplies) {
+        review.commentReplies = [];
+      }
+      review?.commentReplies?.push(replyData);
+
+      await course?.save();
+      res.status(200).json({
+        success: true,
+        course,
+      });
+    } catch (error: any) {
+      return next(
+        new globalErrorHandler(error.message, httpStatus.INTERNAL_SERVER_ERROR),
+      );
+    }
+  },
+);
+
+// 6 : 14 : 47
 export const courseController = {
   uploadCourse,
   editCourse,
   getSingleCourse,
   getAllCourses,
   getCourseByUser,
+  addQuestion,
+  addAnswer,
+  addReview,
+  addRepayToReview,
 };

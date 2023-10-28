@@ -1,17 +1,20 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
+
+import { IUser } from '../user/user.interface';
+
 // * comment Interface
 export interface IComment {
-  user: object;
-  comment: string;
-  commentReplies: IComment[];
+  user: IUser;
+  question: string;
+  questionReplies: IComment[];
 }
 
 // * Review interface
 export interface IReview {
-  user: object;
+  user: IUser;
   rating: number;
   comment: string;
-  commentReplies: IComment[];
+  commentReplies?: IComment[];
 }
 // * Link interface
 export interface ILink {
@@ -56,4 +59,31 @@ export interface ICourse {
   purchased?: number;
 }
 
-// 4.29.02
+// * Add question in course
+export interface IAddQuestionData {
+  question: string;
+  courseId: string;
+  contentId: string;
+}
+
+// * add answer in course
+export interface IAddAnswerData {
+  answer: string;
+  courseId: string;
+  contentId: string;
+  questionId: string;
+}
+
+// * add review in course
+export interface IAddReviewData {
+  review: string;
+  rating: number;
+  userId: string;
+}
+
+// * add Replay to review data
+export interface IAddReviewRaplayData {
+  comment: string;
+  courseId: string;
+  reviewId: string;
+}

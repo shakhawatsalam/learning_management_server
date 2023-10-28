@@ -16,6 +16,7 @@ const reviewSchema: Schema<IReview> = new mongoose.Schema({
     default: 0,
   },
   comment: String,
+  commentReplies: [Object],
 });
 
 // * Link Schema
@@ -26,8 +27,8 @@ const linkSchema: Schema<ILink> = new mongoose.Schema({
 // * Comment Schema
 const commentSchema: Schema<IComment> = new mongoose.Schema({
   user: Object,
-  comment: String,
-  commentReplies: [Object],
+  question: String,
+  questionReplies: [Object],
 });
 
 // * Course Data Schema

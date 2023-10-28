@@ -23,5 +23,14 @@ router.get(
   isAuthenticated,
   courseController.getCourseByUser,
 );
+router.put('/add-question', isAuthenticated, courseController.addQuestion);
+router.put('/add-answer', isAuthenticated, courseController.addAnswer);
+router.put('/add-review/:id', isAuthenticated, courseController.addReview);
+router.put(
+  '/add-reply',
+  isAuthenticated,
+  authorizeRole('admin'),
+  courseController.addRepayToReview,
+);
 
 export const CourseRoutes = router;
