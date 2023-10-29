@@ -7,7 +7,7 @@ import { CatchAsyncError } from '../../middleware/catchAsyncErrors';
 import { IOrder } from './order.interface';
 import userModel from '../user/user.model';
 import CourseModel from '../course/course.model';
-import { newOrder } from './order.service';
+import { orderService } from './order.service';
 import path from 'path';
 import ejs from 'ejs';
 import sendMail from '../../../utils/sendMail';
@@ -93,7 +93,7 @@ const createOrder = CatchAsyncError(
         course.purchased = (course.purchased || 0) + 1;
         await course.save();
       }
-      newOrder(data, res, next);
+      orderService.newOrder(data, res, next);
 
       res.status(201).json({
         success: true,
@@ -106,8 +106,25 @@ const createOrder = CatchAsyncError(
     }
   },
 );
+// * Get All Orders
+const getAllOrders = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await orderService.getAllOrders();
+      res.status(200).json({
+        success: true,
+        result,
+      });
+    } catch (error: any) {
+      return next(
+        new globalErrorHandler(error.message, httpStatus.BAD_REQUEST),
+      );
+    }
+  },
+);
 
 // * export's
 export const OrderController = {
   createOrder,
+  getAllOrders,
 };

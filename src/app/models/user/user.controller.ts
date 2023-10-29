@@ -30,6 +30,7 @@ import { redis } from '../../../redis';
 import { userService } from './user.service';
 import cloudinary from 'cloudinary';
 
+// * user Registration
 const registrationUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -79,7 +80,6 @@ const registrationUser = CatchAsyncError(
     }
   },
 );
-//? 2:34:22
 
 // * activate user
 const activateUser = CatchAsyncError(
@@ -373,7 +373,6 @@ const updatePassword = CatchAsyncError(
 );
 
 // * update profile picture
-
 const updateProfilePicture = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -422,6 +421,23 @@ const updateProfilePicture = CatchAsyncError(
   },
 );
 
+// * Get all user
+const getAllUser = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await userService.getAllUser();
+      res.status(200).json({
+        success: true,
+        result,
+      });
+    } catch (error: any) {
+      return next(
+        new globalErrorHandler(error.message, httpStatus.BAD_REQUEST),
+      );
+    }
+  },
+);
+
 export const userController = {
   registrationUser,
   activateUser,
@@ -433,4 +449,5 @@ export const userController = {
   updateUserInfo,
   updatePassword,
   updateProfilePicture,
+  getAllUser,
 };

@@ -7,6 +7,12 @@ const createCourse = async (data: ICourse) => {
   return result;
 };
 
+// * Get All Courses
+const getAllCourses = async () => {
+  const result = await CourseModel.find().sort({ createdAt: -1 });
+  return result;
+};
 export const courseService = {
   createCourse,
+  getAllCourses,
 };

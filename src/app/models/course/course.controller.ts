@@ -441,6 +441,22 @@ const addRepayToReview = CatchAsyncError(
   },
 );
 
+const getAllCoursesAdmin = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await courseService.getAllCourses();
+      res.status(200).json({
+        success: true,
+        result,
+      });
+    } catch (error: any) {
+      return next(
+        new globalErrorHandler(error.message, httpStatus.BAD_REQUEST),
+      );
+    }
+  },
+);
+
 // 6 : 14 : 47
 export const courseController = {
   uploadCourse,
@@ -452,4 +468,5 @@ export const courseController = {
   addAnswer,
   addReview,
   addRepayToReview,
+  getAllCoursesAdmin,
 };

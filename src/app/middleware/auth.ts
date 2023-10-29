@@ -44,7 +44,7 @@ export const authorizeRole = (...roles: string[]) => {
     if (!roles.includes(req.user?.role || '')) {
       return next(
         new globalErrorHandler(
-          `Role: ${req.user?.role} is not allowed to access this resourse`,
+          `Role: ${req.user?.role} is not allowed to access this recourse`,
           httpStatus.FORBIDDEN,
         ),
       );

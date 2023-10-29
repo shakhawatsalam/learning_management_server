@@ -3,7 +3,12 @@ import { authorizeRole, isAuthenticated } from '../../middleware/auth';
 import { courseController } from './course.controller';
 
 const router = express.Router();
-
+router.get(
+  '/',
+  isAuthenticated,
+  authorizeRole('admin'),
+  courseController.getAllCoursesAdmin,
+);
 router.post(
   '/create-course',
   isAuthenticated,

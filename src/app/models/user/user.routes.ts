@@ -1,9 +1,14 @@
 import express from 'express';
 import { userController } from './user.controller';
-import { isAuthenticated } from '../../middleware/auth';
+import { authorizeRole, isAuthenticated } from '../../middleware/auth';
 
 const router = express.Router();
-
+router.get(
+  '/',
+  isAuthenticated,
+  authorizeRole('admin'),
+  userController.getAllUser,
+);
 router.post('/registration', userController.registrationUser);
 router.post('/activate-user', userController.activateUser);
 router.post('/login', userController.logInUser);
