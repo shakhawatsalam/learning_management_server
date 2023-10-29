@@ -457,6 +457,26 @@ const getAllCoursesAdmin = CatchAsyncError(
   },
 );
 
+// * deleteCourse ----> only for admin
+const deleteCourse = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const result = await courseService.deleteCourse(id, next);
+
+      res.status(200).json({
+        success: true,
+        message: 'course deleted successfully',
+        result,
+      });
+    } catch (error: any) {
+      return next(
+        new globalErrorHandler(error.message, httpStatus.BAD_REQUEST),
+      );
+    }
+  },
+);
+
 // 6 : 14 : 47
 export const courseController = {
   uploadCourse,
@@ -469,4 +489,5 @@ export const courseController = {
   addReview,
   addRepayToReview,
   getAllCoursesAdmin,
+  deleteCourse,
 };

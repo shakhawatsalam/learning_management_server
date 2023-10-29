@@ -37,5 +37,11 @@ router.put(
   authorizeRole('admin'),
   courseController.addRepayToReview,
 );
+router.delete(
+  '/delete-course/:id',
+  isAuthenticated,
+  authorizeRole('admin'),
+  courseController.deleteCourse,
+);
 
 export const CourseRoutes = router;

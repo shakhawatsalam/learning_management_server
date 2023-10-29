@@ -438,6 +438,43 @@ const getAllUser = CatchAsyncError(
   },
 );
 
+// * update user role ----> only for admin
+const updateUserRole = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id, role } = req.body;
+      const result = await userService.updateUserRole(id, role);
+      console.log(result);
+      res.status(200).json({
+        success: true,
+        result,
+      });
+    } catch (error: any) {
+      return next(
+        new globalErrorHandler(error.message, httpStatus.BAD_REQUEST),
+      );
+    }
+  },
+);
+// * update user role ----> only for admin
+const deleteUser = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const result = await userService.deleteUser(id);
+
+      res.status(200).json({
+        success: true,
+        result,
+      });
+    } catch (error: any) {
+      return next(
+        new globalErrorHandler(error.message, httpStatus.BAD_REQUEST),
+      );
+    }
+  },
+);
+
 export const userController = {
   registrationUser,
   activateUser,
@@ -450,4 +487,6 @@ export const userController = {
   updatePassword,
   updateProfilePicture,
   getAllUser,
+  updateUserRole,
+  deleteUser,
 };

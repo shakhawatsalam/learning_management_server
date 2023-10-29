@@ -27,5 +27,17 @@ router.put(
   isAuthenticated,
   userController.updateProfilePicture,
 );
+router.put(
+  '/update-user-role',
+  isAuthenticated,
+  authorizeRole('admin'),
+  userController.updateUserRole,
+);
+router.delete(
+  '/delete-user/:id',
+  isAuthenticated,
+  authorizeRole('admin'),
+  userController.deleteUser,
+);
 
 export const UserRoutes = router;
