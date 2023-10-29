@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 
+import { Document } from 'mongoose';
 import { IUser } from '../user/user.interface';
 
 // * comment Interface
@@ -42,7 +43,7 @@ export interface IThumbnail {
 }
 
 // * Course Intarface
-export interface ICourse {
+export interface ICourse extends Document {
   name: string;
   description: string;
   price: number;

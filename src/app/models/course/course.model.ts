@@ -55,57 +55,60 @@ const thumbnailSchema: Schema<IThumbnail> = new mongoose.Schema({
 });
 
 // * Mail Course Schema
-const courseSchema: Schema<ICourse> = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  price: {
-    type: Number,
-    required: true,
-  },
-  estimatedPrice: {
-    type: Number,
-  },
-  thumbnail: thumbnailSchema,
-  tags: {
-    type: String,
-    required: true,
-  },
-  level: {
-    type: String,
-    required: true,
-  },
-  demoUrl: {
-    type: String,
-    required: true,
-  },
+const courseSchema: Schema<ICourse> = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    estimatedPrice: {
+      type: Number,
+    },
+    thumbnail: thumbnailSchema,
+    tags: {
+      type: String,
+      required: true,
+    },
+    level: {
+      type: String,
+      required: true,
+    },
+    demoUrl: {
+      type: String,
+      required: true,
+    },
 
-  benefits: [
-    {
-      title: String,
+    benefits: [
+      {
+        title: String,
+      },
+    ],
+    prerequisites: [
+      {
+        title: String,
+      },
+    ],
+    reviews: [reviewSchema],
+    courseData: [courseDataSchema],
+    ratings: {
+      type: Number,
+      default: 0,
     },
-  ],
-  prerequisites: [
-    {
-      title: String,
+    purchased: {
+      type: Number,
+      default: 0,
     },
-  ],
-  reviews: [reviewSchema],
-  courseData: [courseDataSchema],
-  ratings: {
-    type: Number,
-    default: 0,
   },
-  purchased: {
-    type: Number,
-    default: 0,
-  },
-});
+  { timestamps: true },
+);
 
 const CourseModel: Model<ICourse> = mongoose.model('Course', courseSchema);
 

@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
+
+import { Document } from 'mongoose';
+
 // * user interface
-export interface IUser {
+export interface IUser extends Document {
   _id?: string;
-  isModified(arg0: string): unknown;
+  isModified(field: string): boolean;
   name: string;
   email: string;
   password: string;

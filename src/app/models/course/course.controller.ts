@@ -477,7 +477,6 @@ const deleteCourse = CatchAsyncError(
   },
 );
 
-// 6 : 14 : 47
 export const courseController = {
   uploadCourse,
   editCourse,
