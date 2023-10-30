@@ -110,8 +110,8 @@ const getSingleCourse = CatchAsyncError(
         const course = await CourseModel.findById(req.params.id).select(
           '-courseData.videoUrl -courseData.suggestion -courseData.question -courseData.links',
         );
-        console.log(course, 'From MongoDB');
-        await redis.set(courseId, JSON.stringify(course));
+
+        await redis.set(courseId, JSON.stringify(course), 'EX', 604800);
         res.status(200).json({
           success: true,
           course,
